@@ -1,0 +1,65 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+:root {
+  --border-color: var(--border);
+}
+
+/* Flat VS Code-inspired button styles */
+button {
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+button:hover {
+  opacity: 0.9;
+  transform: none;
+}
+
+button:active {
+  transform: scale(0.98);
+}
+
+/* Remove rounded corners for flat design */
+select,
+input,
+textarea {
+  border-radius: 3px;
+}
+
