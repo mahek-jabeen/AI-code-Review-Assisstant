@@ -21,8 +21,8 @@ function Auth({ setUser }) {
       setLoading(true);
 
       const url = isLogin
-        ? "http://localhost:4000/api/auth/login"
-        : "http://localhost:4000/api/auth/signup";
+        ? "https://ai-code-review-assisstant.onrender.com/api/auth/login"
+        : "https://ai-code-review-assisstant.onrender.com/api/auth/signup";
 
       const payload = isLogin
         ? {

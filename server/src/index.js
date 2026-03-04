@@ -212,6 +212,22 @@ ${code}
 
     res.json({ success: true, result: parsed, savedId: saved._id });
   } catch (err) {
+    // Detect DNS/network errors
+    const isNetworkError = err.code === 'ENOTFOUND' || 
+                          err.code === 'ECONNREFUSED' || 
+                          err.code === 'ETIMEDOUT' ||
+                          err.message?.includes('getaddrinfo');
+    
+    if (isNetworkError) {
+      // Return clean 503 error without retry
+      console.error("❌ Refactor Network Error:", err.code || 'DNS_ERROR');
+      return res.status(503).json({ 
+        success: false, 
+        error: "Refactor service unavailable. Please check internet or try again later." 
+      });
+    }
+    
+    // Other errors (API errors, parsing errors, etc.)
     console.error("❌ Refactor Error:", err.response?.data || err.message);
     res.status(500).json({ success: false, error: "Refactor failed" });
   }

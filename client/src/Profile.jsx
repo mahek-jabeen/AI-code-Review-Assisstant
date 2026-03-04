@@ -8,7 +8,7 @@ function Profile({ getAuthConfig, styles, onLogout }) {
   const fetchProfile = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:4000/api/profile",
+        "https://ai-code-review-assisstant.onrender.com/api/profile",
         getAuthConfig()
       );
       setProfile(res.data);

@@ -28,6 +28,7 @@ const LANGUAGE_OPTIONS = [
 function Dashboard({ getAuthConfig, styles }) {
   const [diffHeight, setDiffHeight] = useState(300);
   const [isDragging, setIsDragging] = useState(false);
+  const diffContainerRef = useRef(null);
   const [refactorResult, setRefactorResult] = useState(null);
   const [refactorLoading, setRefactorLoading] = useState(false);
   const [language, setLanguage] = useState("javascript");
@@ -63,7 +64,11 @@ function Dashboard({ getAuthConfig, styles }) {
       }
       
       if (isDragging) {
-        setDiffHeight((prev) => Math.max(150, prev - e.movementY));
+        setDiffHeight((prev) => {
+          const newHeight = prev - e.movementY;
+          // Allow flexible resizing with reasonable min/max bounds
+          return Math.min(Math.max(150, newHeight), window.innerHeight * 0.7);
+        });
       }
     };
 
@@ -132,7 +137,7 @@ function Dashboard({ getAuthConfig, styles }) {
       setLoading(true);
 
       const res = await axios.post(
-        "http://localhost:4000/api/review",
+        "https://ai-code-review-assisstant.onrender.com/api/review",
         { code, language },
         getAuthConfig()
       );
@@ -159,7 +164,7 @@ function Dashboard({ getAuthConfig, styles }) {
       };
 
       const res = await axios.post(
-        "http://localhost:4000/api/refactor",
+        "https://ai-code-review-assisstant.onrender.com/api/refactor",
         body,
         getAuthConfig()
       );
@@ -465,32 +470,56 @@ function Dashboard({ getAuthConfig, styles }) {
           {/* Diff Viewer (if improved code exists) */}
           {improvedCode && (
             <>
+              {/* VS Code-style resize handle */}
               <div
                 style={{
-                  height: "4px",
-                  background: "var(--border)",
+                  height: "6px",
+                  background: "transparent",
                   cursor: "row-resize",
-                  margin: "10px 0",
+                  margin: "8px 0",
                   borderRadius: "0",
-                  transition: "background 0.2s ease",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  position: "relative",
+                  transition: "background 0.15s ease",
                 }}
-                onMouseDown={() => setIsDragging(true)}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  setIsDragging(true);
+                  document.body.style.cursor = "row-resize";
+                }}
                 onMouseEnter={(e) => {
-                  e.target.style.background = "var(--nav-active)";
+                  e.currentTarget.style.background = "var(--nav-active)";
                 }}
                 onMouseLeave={(e) => {
-                  e.target.style.background = "var(--border)";
+                  if (!isDragging) {
+                    e.currentTarget.style.background = "transparent";
+                  }
                 }}
-              />
+              >
+                {/* Thin visible line */}
+                <div
+                  style={{
+                    width: "100%",
+                    height: "1px",
+                    background: "var(--border)",
+                  }}
+                />
+              </div>
 
+              {/* Resizable Diff Container */}
               <div
+                ref={diffContainerRef}
                 style={{
-                  height: diffHeight,
-                  maxHeight: "40vh",
+                  height: `${diffHeight}px`,
                   minHeight: "150px",
-                  overflowY: "auto",
+                  maxHeight: `${window.innerHeight * 0.7}px`,
+                  overflowY: "hidden",
                   borderRadius: "0",
                   border: "1px solid var(--border)",
+                  display: "flex",
+                  flexDirection: "column",
                 }}
               >
                 <DiffViewer oldCode={code} newCode={improvedCode} />
@@ -800,7 +829,7 @@ function GithubReview({ getAuthConfig, styles }) {
     try {
       setLoading(true);
       const res = await axios.post(
-        "http://localhost:4000/api/github-review",
+        "https://ai-code-review-assisstant.onrender.com/api/github-review",
         { repoUrl },
         getAuthConfig()
       );
@@ -909,7 +938,7 @@ function HistoryPage({ getAuthConfig, styles }) {
   const fetchHistory = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:4000/api/history",
+        "https://ai-code-review-assisstant.onrender.com/api/history",
         getAuthConfig()
       );
       setReviewHistory(res.data);
@@ -925,7 +954,7 @@ function HistoryPage({ getAuthConfig, styles }) {
   const handleDeleteOne = async (id) => {
     try {
       await axios.delete(
-        `http://localhost:4000/api/history/${id}`,
+        `https://ai-code-review-assisstant.onrender.com/api/history/${id}`,
         getAuthConfig()
       );
       fetchHistory();
@@ -942,7 +971,7 @@ function HistoryPage({ getAuthConfig, styles }) {
 
     try {
       await axios.delete(
-        "http://localhost:4000/api/history",
+        "https://ai-code-review-assisstant.onrender.com/api/history",
         getAuthConfig()
       );
       fetchHistory();
