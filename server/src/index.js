@@ -258,7 +258,11 @@ app.post("/api/github-review", auth, async (req, res) => {
 
     // 🔹 Get full file tree (HEAD branch) recursively
     const treeUrl = `https://api.github.com/repos/${owner}/${repo}/git/trees/HEAD?recursive=1`;
-    const treeRes = await axios.get(treeUrl);
+    const treeRes = await axios.get(treeUrl, {
+  headers: {
+    Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+  },
+});
     const tree = treeRes.data.tree || [];
 
     // 🔹 File types we care about
@@ -291,7 +295,11 @@ app.post("/api/github-review", auth, async (req, res) => {
 
     for (const file of filesToRead) {
       const rawUrl = `https://raw.githubusercontent.com/${owner}/${repo}/HEAD/${file.path}`;
-      const fileRes = await axios.get(rawUrl);
+      const fileRes = await axios.get(rawUrl, {
+  headers: {
+    Authorization: `Bearer ${process.env.GITHUB_TOKEN}`,
+  },
+});
 
       combinedCode += `\n\n// FILE: ${file.path}\n${fileRes.data}`;
     }
